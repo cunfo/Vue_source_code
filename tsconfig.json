@@ -1,0 +1,58 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+     "outDir": "./dist", //指定编译后输出文件的目录，所有生成的 .js、.d.ts、source map 等都会放到 dist 文件夹下。
+
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    "module": "esnext", //指定模块系统
+    "target": "es2016", //指定编译后的 JavaScript 目标版本为 ES2016（即 ES7），不支持该版本的新特性会被降级转换。
+    // For nodejs:
+    "lib": ["esnext", "dom"], //指定编译时可用的内置 API 声明库。esnext 包含最新的 ECMAScript 提案特性，dom 包含浏览器 DOM API。
+      // 注意：这里包含了 dom，但项目可能是 Node.js 环境，通常 Node 项目应使用 "lib": ["esnext"] 并配合 @types/node。
+
+    // Recommended Options
+    "strict": false, // 严格模式
+      /* 
+        严格模式的总开关，这里设为 false 表示关闭所有严格类型检查选项。
+        若设为 true，会启用一系列严格检查（包括 strictNullChecks、noImplicitAny 等），建议开启以获得更好的类型安全。
+      */
+    "jsx": "preserve", //react-jsx指定 JSX 代码的生成方式为 React 17+ 的新 JSX 转换，不再需要手动引入 React。
+
+    "moduleResolution": "bundler", //指定模块解析器，这里使用 Node.js 的模块解析器。
+
+    "paths": {
+      "@vue/*":["./packages/*/src"]
+    }
+    // "rootDir": "./src", //若启用，会指定源代码的根目录，编译器会以此为基础计算输出目录结构，而不是根据源文件的共同路径自动推断。
+    // "types": ["node"], //若启用，会仅包含 @types/node 的类型声明，常用于 Node.js 项目，并需要先安装 @types/node。
+    // "types": [], //明确指定要包含的全局类型声明包（通常是 @types/*）。空数组表示不自动包含任何 @types 包，除非手动 import。
+    // and npm install -D @types/node
+
+    // Other Outputs
+    // "sourceMap": true, //生成 .js.map 文件，用于调试时将编译后的代码映射回原始 TypeScript 源码。
+    // "declaration": true, //为每个 .ts 文件生成对应的 .d.ts 类型声明文件，供其他项目引用。
+    // "declarationMap": true, //为生成的 .d.ts 文件也创建 source map，使 IDE 能跳转到声明对应的实现源码。
+
+    // Stricter Typechecking Options
+    // "noUncheckedIndexedAccess": true, //访问索引签名（如 obj[key]）或数组元素时，类型会包含 undefined，强制开发者处理可能不存在的值。
+      //  例：const a: string[] = []; a[0] 的类型变为 string | undefined。
+    // "exactOptionalPropertyTypes": true, //可选属性（prop?: T）不允许显式赋值为 undefined，除非其类型本身包含 undefined。
+      //  例：interface I { x?: number }，则 const v: I = { x: undefined } 会报错。
+    // Style Options
+    // "noImplicitReturns": true, //要求函数所有代码路径都必须显式返回值（return 或 throw），不允许某些分支隐式返回 undefined
+    // "noImplicitOverride": true, //要求子类中重写父类方法时，必须显式使用 override 关键字，防止意外覆盖。
+    // "noUnusedLocals": true, //禁止声明了但未使用的局部变量。
+    // "noUnusedParameters": true, //禁止声明了但未使用的函数参数（参数名以下划线开头可豁免）。
+    // "noFallthroughCasesInSwitch": true, //禁止 switch 语句中的 case 出现落空（即未使用 break、return 或 throw 就进入下一个 case）。
+    // "noPropertyAccessFromIndexSignature": true, //当对象有索引签名时，禁止使用点号访问属性（如 obj.foo 需改为 obj["foo"]），强制一致性。
+
+    // "esModuleInterop": true, //启用 ES 模块互操作，允许在 TypeScript 中使用 ES 模块语法。
+    // "verbatimModuleSyntax": true, //要求 import/export 语句必须与最终生成代码的语法一致，例如类型导入必须使用 import type，不会自动移除仅用于类型的导入。
+    // "isolatedModules": true, //确保每个文件都可以独立转译（不依赖其他文件的类型信息），适合与 Babel、esbuild 等单文件转译工具配合使用。
+    // "noUncheckedSideEffectImports": true, //禁止导入一个无法解析的模块（如 import "./missing"），即使该导入仅用于副作用（无导出绑定）。
+    // "moduleDetection": "force", //强制将所有 .ts 文件视为模块（即每个文件都有自己的作用域），而不是根据是否有 import/export 自动判断。
+    // "skipLibCheck": true, //跳过对所有声明文件（.d.ts）的类型检查，可加快编译速度，并避免第三方类型定义之间的冲突。
+  }
+}

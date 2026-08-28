@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+<script type="module">
+import { reactive, effect } from './reactivity.js'
+// reactive 让数据变成响应式
+const obj = {name: 'cunfox',age: 20, bool:false}
+const state = reactive(obj)
+
+// console.log(state.name, state.age);
+// effect 副作用 数据变化后可以让effect重新执行，组件渲染、watch、computed等都是基于effect实现
+const _effect = effect(()=>{
+    app.innerHTML = `${ state.bool ? '姓名：' + state.name: '年龄：' + state.age} `
+})
+
+//  effect(()=>{
+//     console.log(state.name);
+//     effect(()=>{
+//         console.log(state.name);
+//     })
+//     console.log(state.name);
+//  })
+
+setTimeout(()=>{
+    console.log('修改');
+    state.bool = true
+},1000)
+
+</script>
+
+</html>
