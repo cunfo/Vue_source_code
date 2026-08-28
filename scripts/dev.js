@@ -65,8 +65,8 @@ esbuild.context({
     4.import.meta.main 是一个布尔值，表示当前模块是否是主模块，值: true
     5.import.meta.resolve 是一个函数，用于解析模块路径，值: (path) => 'file:///C:/Users/Administrator/Desktop/vue3-review/vue-lesson/scripts/dev.js'
 */
-console.log(__filename);
-console.log(__dirname);
-console.log(require);
-console.log(entry);
-console.log(pkg);
+// console.log(__filename);
+// console.log(__dirname);
+// console.log(require);
+// console.log(entry);
+// console.log(pkg);

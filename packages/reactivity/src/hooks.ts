@@ -5,8 +5,7 @@ export const onlyReactive = Symbol('__v_isReactive')
 export const reactiveHandler: ProxyHandler<any> = {
     get: (target, key, recerver) => {
         if (key === onlyReactive) return true
-        // 当取值的时候，应该让响应式对象和effect映射
-
+        
         // 依赖收集
         track(target, key)
 
@@ -36,15 +35,11 @@ export const createDep = (cleanup,key) => {
 function track(target, key){
     // 依赖收集
     if(activeEffect){
-        // console.log(target, key,activeEffect);
         let depsMap = targetMap.get(target);
         if(!depsMap) targetMap.set(target, depsMap = new Map());
         let dep = depsMap.get(key);
         if(!dep) depsMap.set(key, dep = createDep(()=>depsMap.delete(key),key));
-        // console.log('depsMap   ',depsMap);
-        // console.log('dep   ',dep);
         trackEffect(activeEffect,dep)
-        // console.log("targetMap   ",targetMap)
     }
 }
 

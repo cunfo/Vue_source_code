@@ -42,10 +42,10 @@ export function trackEffect(effect,dep){
         }else{
             effect._depslength++
         }
-         console.log('effect', effect);
     }
 }
 
+// 触发依赖重新执行effect.run()
 export function triggerEffects(dep){
     for(const effect of dep.keys()){
         if(effect.scheduler){
