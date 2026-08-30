@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ref implement</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script type="module">
+/* 
+* ref implement
+* 通过ref()这个方法传递一个参数，这个参数会用类或者对象进行包裹，
+* 然后通过get value()或者set value()，在取值或者修改值的时候进行依赖搜集或依赖触发。
+*/
+
+  
+    import { ref, effect, objectRef } from "./reactivity.js";
+    // varable
+    // 通过类实现
+    const count = ref(0);
+    // 通过对象实现
+    const count1 = objectRef(1);
+
+    // effect
+    const runner = effect(() => {
+      console.log("runner");
+      // app.innerHTML = `count: ${count.value} --- `;
+      // app.innerHTML = `count1: ${count1.value}`;
+      app.innerHTML = `calss: ${count.value} --- obj: ${count1.value}`;
+
+    });
+    
+    setTimeout(() => {
+      count.value += 1;
+      count1.value += 1;
+      count.value += 1;
+    }, 1000);
+  </script>
+</html>

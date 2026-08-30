@@ -9,8 +9,7 @@ export function reactive(target){
 
 function createReactive(target){
     // 判断是否为对象
-    if(!isObject(target)) return TypeError(`target must be an object`);
-
+    if(!isObject(target)) return target
     // 判断对象是否被代理过了
     if(target[onlyReactive]) return target;
 
@@ -28,3 +27,7 @@ function createReactive(target){
     return proxy;
 }   
 
+
+export function toReactive(value){
+    return isObject(value) ? reactive(value) : value;
+}

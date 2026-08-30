@@ -1,3 +1,5 @@
+import { isObject } from "@vue/shared";
+import { reactive } from "./reactive"; 
 import { activeEffect, trackEffect, triggerEffects } from "./effect";
 
 export const onlyReactive = Symbol('__v_isReactive')
@@ -5,11 +7,15 @@ export const onlyReactive = Symbol('__v_isReactive')
 export const reactiveHandler: ProxyHandler<any> = {
     get: (target, key, recerver) => {
         if (key === onlyReactive) return true
-        
+        // reactive懒代理，代理子对象
+        const result = Reflect.get(target, key, recerver)
+        if (isObject(result)) {
+            return reactive(result)
+        }
         // 依赖收集
         track(target, key)
 
-        return Reflect.get(target, key, recerver)
+        return result
     },
     set: (target, key, value, recerver) => {
         // 找到属性，让对应的effect重新执行
@@ -17,6 +23,7 @@ export const reactiveHandler: ProxyHandler<any> = {
         let newValue = Reflect.set(target, key, value, recerver)
         if(oldValue !== newValue) {
             // 触发依赖
+            console.log(oldValue, newValue);
             trigger(target, key, newValue, oldValue )
         }
         return newValue
@@ -45,7 +52,6 @@ function track(target, key){
 
 function trigger(target, key, newValue, oldValue){
     // 触发依赖
-    console.log('触发依赖');
     const depsMap = targetMap.get(target)
     if(!depsMap) return;
     const dep = depsMap.get(key);
