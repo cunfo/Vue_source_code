@@ -24,6 +24,7 @@ function postCleanEffect(e) {
     for (let i = e._depslength; i < e._deps.length; i++) {
       clearDepEffect(e._deps[i], e);
     }
+    e._deps.length = e._depslength;
   }
 }
 var ReactiveEffect = class {
@@ -41,7 +42,7 @@ var ReactiveEffect = class {
     if (!this.active) return this.fn();
     if (this._running) return;
     this._running = true;
-    let lastEffect = activeEffect;
+    this._parent = activeEffect;
     try {
       activeEffect = this;
       preCleanEffect(this);
@@ -49,15 +50,13 @@ var ReactiveEffect = class {
     } finally {
       postCleanEffect(this);
       this._running = false;
-      activeEffect = lastEffect;
+      activeEffect = this._parent;
     }
   }
 };
 function clearDepEffect(dep, effect2) {
   dep.delete(effect2);
-  if (dep.size == 0) {
-    dep.cleanup();
-  }
+  if (dep.size == 0) dep.cleanup();
 }
 function trackEffect(effect2, dep) {
   if (dep.get(effect2) !== effect2._trackId) {
@@ -95,7 +94,6 @@ var reactiveHandler = {
     let oldValue = target[key];
     let newValue = Reflect.set(target, key, value, recerver);
     if (oldValue !== newValue) {
-      console.log(oldValue, newValue);
       trigger(target, key, newValue, oldValue);
     }
     return newValue;
@@ -154,7 +152,7 @@ function createRef(value) {
 var RefImpl = class {
   constructor(rawValue) {
     this.rawValue = rawValue;
-    this.__v_isRef = "refImpl";
+    this.__v_isRef = true;
     this._value = toReactive(rawValue);
   }
   get value() {
@@ -169,47 +167,19 @@ var RefImpl = class {
     }
   }
 };
-function objectRef(value) {
-  return createObjectRef(value);
-}
-function createObjectRef(value) {
-  let objRef = {
-    __v_isRef: "objRef",
-    _value: toReactive(value),
-    _dep: void 0,
-    get value() {
-      trackRef(this);
-      return this._value;
-    },
-    set value(newValue) {
-      if (newValue !== this._value) {
-        this._value = newValue;
-        triggerRef(this);
-      }
-    }
-  };
-  return objRef;
-}
 function trackRef(e) {
   if (activeEffect) {
-    if (!e._dep) {
-      e._dep = createDep(() => {
-        e._dep = void 0;
-      }, e.__v_isRef);
-    }
+    if (!e._dep) e._dep = createDep(() => e._dep = void 0, e.__v_isRef);
     trackEffect(activeEffect, e._dep);
   }
 }
 function triggerRef(e) {
   let dep = e._dep;
-  if (dep) {
-    triggerEffects(dep);
-  }
+  if (dep) triggerEffects(dep);
 }
 export {
   activeEffect,
   effect,
-  objectRef,
   reactive,
   ref,
   toReactive,

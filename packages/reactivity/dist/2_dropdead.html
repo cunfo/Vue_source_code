@@ -13,7 +13,7 @@
 /* 
 * drop_dead problem
 * 由于在类中没有添加约束running属性，
-* 导致只要修改属性就会触发effect中的scheduler
+* 导致只要在effect中修改属性就会触发effect中的scheduler
 * 致使页面不断更新，导致死循环，导致程序崩溃Uncaught RangeError: Maximum call stack size exceeded
 * 解决方法：在类中添加约束running属性，确保只有在running为true时才会触发effect中的scheduler
 */

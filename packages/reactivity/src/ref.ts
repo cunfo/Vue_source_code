@@ -12,7 +12,7 @@ function createRef(value) {
 }
 
 class RefImpl {
-    __v_isRef = "refImpl"
+    __v_isRef = true
     _value
     _dep
     constructor(public rawValue) {
@@ -34,14 +34,14 @@ class RefImpl {
     }
 }
 
-// 对象实现ref
+/* // 对象实现ref
 export function objectRef(value) {
     return createObjectRef(value)
 }
 
 function createObjectRef(value) {
     let objRef = {
-        __v_isRef: 'objRef',
+        __v_isRef: true,
         _value: toReactive(value),
         _dep: undefined,
         get value() {
@@ -58,15 +58,11 @@ function createObjectRef(value) {
     }
     return objRef
 }
-
+ */
 // 通过全局activeEffect来收集依赖，表示在当前activeEffect中绑定了这个ref
 function trackRef(e) {
     if (activeEffect) {
-        if (!e._dep) {
-            e._dep = createDep(() => {
-                e._dep = undefined
-            }, e.__v_isRef)
-        }
+        if (!e._dep) e._dep = createDep(() => e._dep = undefined, e.__v_isRef)
         trackEffect(activeEffect, e._dep)
     }
 }
@@ -94,7 +90,5 @@ function trackRef(e) {
 // 通过获取RefImpl的_dep，触发activeEffect中的schedule属性对应的方法实现重新执行activeEffect中的run()
 function triggerRef(e) {
     let dep = e._dep
-    if (dep) {
-        triggerEffects(dep)
-    }
+    if (dep) triggerEffects(dep)
 }

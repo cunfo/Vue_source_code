@@ -4,7 +4,7 @@ export function effect(fn, options?) {
     // 创建一个响应式effect 数据变化后可以重新执行
     const _effect = new ReactiveEffect(fn, () => _effect.run())
     _effect.run()
-    if(options) {
+    if (options) {
         Object.assign(_effect, options)
     }
 
@@ -13,7 +13,7 @@ export function effect(fn, options?) {
     return runner
 }
 
-function preCleanEffect(e){
+function preCleanEffect(e) {
     e._depslength = 0
     e._trackId++
 }
@@ -23,6 +23,8 @@ function postCleanEffect(e) {
         for (let i = e._depslength; i < e._deps.length; i++) {
             clearDepEffect(e._deps[i], e)
         }
+        // ⭐ 关键：清理后要截断数组，否则下次复用会有残留
+        e._deps.length = e._depslength
     }
 }
 class ReactiveEffect {
@@ -31,6 +33,7 @@ class ReactiveEffect {
     _depslength = 0
     _running = false
     public active = true
+    private _parent: ReactiveEffect | undefined
     constructor(public fn, public scheduler) {
 
     }
@@ -38,39 +41,30 @@ class ReactiveEffect {
         // 让fn执行
         if (!this.active) return this.fn()
         // 
-        if(this._running) return
+        if (this._running) return
         this._running = true
-
-        let lastEffect = activeEffect
+        this._parent = activeEffect
+        // let lastEffect = activeEffect
         try {
             activeEffect = this
+
             // 初始化依赖长度和依赖版本更新
             preCleanEffect(this)
             return this.fn()
         } finally {
             // 删除多余的旧依赖
             postCleanEffect(this)
-/* 等同于 updateEffectDeps(this)         
-*           if (this._deps.length > this._depslength) {
-*               for (let i = this._depslength; i < this._deps.length; i++) {
-*                   clearDepEffect(this._deps[i], this)
-*               }
-*           }
-*/
             this._running = false
-            activeEffect = lastEffect
+            // activeEffect = lastEffect
+            activeEffect = this._parent      
         }
     }
 }
 
-/* 
-*删除旧依赖，是为了提高一点性能。并不是必须要的，源码里面没有这个逻辑
-*/ 
+// 删除旧依赖，是为了提高一点性能。并不是必须要的，源码里面没有这个逻辑
 function clearDepEffect(dep, effect) {
     dep.delete(effect)
-    if (dep.size == 0) {
-        dep.cleanup()
-    }
+    if (dep.size == 0) dep.cleanup()
 }
 
 
@@ -79,10 +73,20 @@ export function trackEffect(effect, dep) {
     if (dep.get(effect) !== effect._trackId) {
         dep.set(effect, effect._trackId)
         let oldDep = effect._deps[effect._depslength]
+        // console.log(oldDep);
         // 判断旧依赖和新依赖是否相同，不一样让新依赖覆盖旧依赖
         if (oldDep !== dep) {
             if (oldDep) clearDepEffect(oldDep, effect)
             effect._deps[effect._depslength++] = dep
+            /* 
+            *这行代码是为了处理effect临时嵌套,导致持续持续创建新的ReactiveEffect实例应用地址,导致多次调用内层的临时effect()函数
+            *该代码目前有有bug存在,需要进一步优化 
+            *局限1: 无法区分持久内层和临时内层,比如外部的watch这些依赖会在内层引用从而导致当前watch依赖丢失
+            *局限2: 幽灵引用问题,暂时作者未理解为什么会造成幽灵引用问题
+            *为了下面的学习最好把下面代码注释掉,
+            *后果:造成effect内部创建的临时effect会一直创建新的reactiveEffect引用地址导致响应式对象中的dep旧的依赖地址无法删除,dep会一直增长
+            */
+            // if (dep.size > 1 && effect._parent) dep.delete(effect)
         } else {
             effect._depslength++
         }
@@ -90,10 +94,12 @@ export function trackEffect(effect, dep) {
 }
 
 // 触发依赖重新执行effect.run()
-export function triggerEffects(dep) {   
+export function triggerEffects(dep) {
     for (const effect of dep.keys()) {
         if (effect.scheduler && !effect._running) {
             effect.scheduler()
         }
     }
 }
+
+

@@ -23,7 +23,6 @@ export const reactiveHandler: ProxyHandler<any> = {
         let newValue = Reflect.set(target, key, value, recerver)
         if(oldValue !== newValue) {
             // 触发依赖
-            console.log(oldValue, newValue);
             trigger(target, key, newValue, oldValue )
         }
         return newValue
