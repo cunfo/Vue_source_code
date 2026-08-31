@@ -22,7 +22,6 @@
     };
     const state = reactive(obj);
 
-    // console.log(state.name, state.age);
     // effect 副作用 数据变化后可以让effect重新执行，组件渲染、watch、computed等都是基于effect实现
     const runner = effect(
       () => {
@@ -56,7 +55,9 @@
     //     console.log("3");
     //     console.log(state.name);
     //  })
+
     // app.innerHTML += `${"电话：" + state.data.tel} `;
+
     setTimeout(() => {
       // state.name = "张三";
       state.bool = true;
