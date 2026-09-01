@@ -1,5 +1,6 @@
 import {isObject} from '@vue/shared'; 
-import { onlyReactive, reactiveHandler } from './hooks';
+import {  reactiveHandler } from './hooks';
+import { ReactiveFlags } from './constants'
 
 const reactiveMap = new WeakMap()
 
@@ -11,7 +12,7 @@ function createReactive(target){
     // 判断是否为对象
     if(!isObject(target)) return target
     // 判断对象是否被代理过了
-    if(target[onlyReactive]) return target;
+    if(target[ReactiveFlags.IS_REACTIVE]) return target;
 
     // 判断当前对象是否被缓存过了
     const exitsProxy = reactiveMap.get(target);

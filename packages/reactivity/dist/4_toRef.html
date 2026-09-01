@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>toRef/toRefs implement</title>
+</head>
+<body>
+    <div id="app">
+        <div id="app_firstChild"></div>
+        <div id="app_secondChild"></div>
+        <div id="app_thirdChild"></div>
+    </div>
+</body>
+<script type="module">
+    /* 
+    * toRef:将原reactive响应式对象中的属性转换成ref对象
+    * toRefs:将原reactive响应式对象中的所有属性转换成ref对象
+    */
+    import {effect, reactive, toRef, toRefs} from './reactivity.js';
+
+    // varables
+    const state = reactive({
+        name: 'Vue',
+        age: 20
+    });
+
+    const name = toRef(state,'name')
+    const age = toRef(state,'age')
+
+    const {name:name1,age:age1} = toRefs(state)
+
+    // effect
+    effect(()=>{
+        app_firstChild.innerHTML = `姓名:  ${name.value}  ---  姓名1:  ${name1.value}`
+        app_secondChild.innerHTML = `年龄:  ${age.value}  ---  年龄1:  ${age1.value}`
+        app_thirdChild.innerHTML = `姓名:  ${state.name}  ---  年龄:  ${state.age}`
+    })
+
+    console.log(name, age, name1, age1, {...state});
+    setTimeout(()=>{
+        name.value = 'Vue3'
+        age.value = 21
+    },1000)
+</script>
+</html>

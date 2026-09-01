@@ -1,4 +1,52 @@
+import { DirtyLevels } from "./constants"
+
 export let activeEffect
+
+export class ReactiveEffect {
+    _trackId = 0 //记录当前effect执行了几次
+    _dirty = DirtyLevels.Dirty
+    _depslength = 0
+    _running = false
+    _deps = []
+    public active = true
+    private _parent: ReactiveEffect | undefined
+    constructor(public fn, public scheduler) {
+
+    }
+
+    // 观察当前effect是否为脏值
+    public get dirty() {
+        return this._dirty === DirtyLevels.Dirty
+    }
+
+    // 修改脏值
+    public set dirty(v) {
+        this._dirty = v ? DirtyLevels.Dirty : DirtyLevels.NoDirty
+    }
+
+    run() {
+        this._dirty = DirtyLevels.NoDirty
+        // 让fn执行
+        if (!this.active) return this.fn()
+        // 
+        if (this._running) return
+        this._running = true
+        this._parent = activeEffect
+        // let lastEffect = activeEffect
+        try {
+            activeEffect = this
+            // 初始化依赖长度和依赖版本更新
+            preCleanEffect(this)
+            return this.fn()
+        } finally {
+            // 删除多余的旧依赖
+            postCleanEffect(this)
+            this._running = false
+            // activeEffect = lastEffect
+            activeEffect = this._parent
+        }
+    }
+}
 
 export function effect(fn, options?) {
     // 创建一个响应式effect 数据变化后可以重新执行
@@ -27,46 +75,12 @@ function postCleanEffect(e) {
         e._deps.length = e._depslength
     }
 }
-class ReactiveEffect {
-    _trackId = 0 //记录当前effect执行了几次
-    _deps = []
-    _depslength = 0
-    _running = false
-    public active = true
-    private _parent: ReactiveEffect | undefined
-    constructor(public fn, public scheduler) {
-
-    }
-    run() {
-        // 让fn执行
-        if (!this.active) return this.fn()
-        // 
-        if (this._running) return
-        this._running = true
-        this._parent = activeEffect
-        // let lastEffect = activeEffect
-        try {
-            activeEffect = this
-
-            // 初始化依赖长度和依赖版本更新
-            preCleanEffect(this)
-            return this.fn()
-        } finally {
-            // 删除多余的旧依赖
-            postCleanEffect(this)
-            this._running = false
-            // activeEffect = lastEffect
-            activeEffect = this._parent      
-        }
-    }
-}
 
 // 删除旧依赖，是为了提高一点性能。并不是必须要的，源码里面没有这个逻辑
 function clearDepEffect(dep, effect) {
     dep.delete(effect)
     if (dep.size == 0) dep.cleanup()
 }
-
 
 // 双向依赖收集
 export function trackEffect(effect, dep) {
@@ -96,6 +110,9 @@ export function trackEffect(effect, dep) {
 // 触发依赖重新执行effect.run()
 export function triggerEffects(dep) {
     for (const effect of dep.keys()) {
+        if (effect._dirty < DirtyLevels.Dirty) {
+            effect._dirty = DirtyLevels.Dirty
+        }
         if (effect.scheduler && !effect._running) {
             effect.scheduler()
         }

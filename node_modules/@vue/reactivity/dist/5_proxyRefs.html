@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>proxyRefs implement</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script type="module">
+    import { reactive, effect, toRefs, proxyRefs } from "./reactivity.js";
+
+    // varablies
+    const state = reactive({
+      count: 0,
+      name: "Vue",
+    });
+
+    const proxy = proxyRefs({ ...toRefs(state) });
+
+    // effect
+    effect(() => {
+      console.log("count:", proxy.count, 'name:', proxy.name);
+
+    });
+
+    setTimeout(()=>{
+        proxy.count = 2;
+        proxy.name = "Vue 2";
+    },1000)
+  </script>
+</html>

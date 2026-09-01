@@ -1,12 +1,11 @@
 import { isObject } from "@vue/shared";
 import { reactive } from "./reactive"; 
 import { activeEffect, trackEffect, triggerEffects } from "./effect";
-
-export const onlyReactive = Symbol('__v_isReactive')
+import { ReactiveFlags } from './constants'
 
 export const reactiveHandler: ProxyHandler<any> = {
     get: (target, key, recerver) => {
-        if (key === onlyReactive) return true
+        if (key === ReactiveFlags.IS_REACTIVE) return true
         // reactive懒代理，代理子对象
         const result = Reflect.get(target, key, recerver)
         if (isObject(result)) {
@@ -40,6 +39,7 @@ export const createDep = (cleanup,key) => {
 
 function track(target, key){
     // 依赖收集
+    console.log(targetMap);
     if(activeEffect){
         let depsMap = targetMap.get(target);
         if(!depsMap) targetMap.set(target, depsMap = new Map());
