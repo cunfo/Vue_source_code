@@ -1,10 +1,10 @@
 {
-  "name": "@vue3/reactivity",
+  "name": "@vue3/runtime-dom",
   "version": "1.0.0",
-  "module": "dist/reactivity.esm-bundler.js",
-  "unpkg": "dist/reactivity.global.js",
+  "module": "dist/runtime-dom.esm-bundler.js",
+  "unpkg": "dist/runtime-dom.global.js",
   "buildOptions": {
-    "name": "VueReactivity",
+    "name": "RuntimeDOM",
     "format": [
       "esm-bundler",
       "esm-borwser",
@@ -13,6 +13,7 @@
     ]
   },
   "dependencies": {
+    "@vue3/reactivity": "workspace:*",
     "@vue3/shared": "workspace:*"
   }
 }

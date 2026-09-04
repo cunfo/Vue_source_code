@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>watch/watchEffect implement</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="app_watch1"></div>
+      <div id="app_watch2"></div>
+    </div>
+  </body>
+  <script type="module">
+    /* 
+    * computed 和 watch vue2 基于watcher实现， vue3基于effect实现
+    */
+    import { reactive, ref, effect, watch, watchEffect } from "./reactivity.js";
+
+    // varablies
+    const state = reactive({
+      name: "Vue",
+      age: 20,
+      address: {
+        city: "Beijing",
+        country: "China",
+      },
+    });
+
+    const name = ref("Vue");
+
+    // watch
+    // watch(state, (newVal, oldVal) => {
+    //     console.log("state changed:", newVal, oldVal);
+    // });
+
+    const unWatch = watch(()=>state.age, (newVal, oldVal) => {
+        console.log("state.age changed:", newVal, oldVal);
+    },{
+        immediate: true, // 立即执行一次
+        deep: true
+    });
+    unWatch() // 取消监听
+
+    // watch(name, (newVal, oldVal) => {
+    //   console.log("name changed:", newVal, oldVal);
+    // });
+
+    // watchEffect(()=>{
+    //     // 可以用于分页请求
+    //     console.log('state.name', state.name);
+    // });
+
+    // effect
+    effect(() => {
+      app_watch1.innerHTML = `name: ${state.name} --- age: ${state.age} --- address: ${state.address.city}-${state.address.country}`;
+      app_watch2.innerHTML = `name: ${name.value}`;  
+    });
+
+    setTimeout(() => {
+      state.age = 21;
+      state.name = "Vue1";
+      name.value = "Vue2";
+      state.address.city = 'Shanghai';
+    }, 3000);
+  </script>
+</html>

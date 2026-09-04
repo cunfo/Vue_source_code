@@ -1,3 +1,103 @@
+// packages/runtime-dom/src/nodeOps.ts
+var nodeOps = {
+  // 创建dom元素
+  createElement: (type) => document.createElement(type),
+  // 插入当前dom元素,anchor不存在.insetBefore() == .appendChild()
+  insert: (el, parent, anchor) => parent.insertBefore(el, anchor || null),
+  // 移除当前dom元素
+  remove(el) {
+    const parent = el.parentNode;
+    if (parent) parent.removeChild(el);
+  },
+  // 为当前dom元素添加文本内容
+  setElementText: (el, text) => el.textContent = text,
+  // 创建当前元素的文本节点
+  createText: (text) => document.createTextNode(text),
+  // 设置当前元素的文本
+  setText: (node, text) => node.nodeValue = text,
+  // 获取夫亲节点
+  parentNode: (node) => node.parentNode,
+  // 获取下一个元素
+  nextSibling: (node) => node.nextSibling
+  // 创建注释
+  // createComment:() =>{},
+  // 设置默认值的id
+  // setScopeId: () => {},
+  // 是否插入静态内容
+  // insertStaticContent: () => {}
+};
+
+// packages/runtime-dom/src/modules/patchAttr.ts
+function patchAttr(el, key, value) {
+  if (value) {
+    el.removeAttribute(key);
+  } else {
+    el.setAttribute(key, value);
+  }
+}
+
+// packages/runtime-dom/src/modules/patchClass.ts
+function patchClass(el, value) {
+  if (value === null) {
+    el.removeAttribute("class");
+  } else {
+    el.className = value;
+  }
+}
+
+// packages/runtime-dom/src/modules/patchEvent.ts
+function patchEvent(el, name, nextValue) {
+  let invokers = el._vei || (el._vei = {});
+  const eventName = name.slice(2).toLowerCase();
+  const exisitingInvoker = invokers[name];
+  if (nextValue && exisitingInvoker) {
+    return exisitingInvoker.value = nextValue;
+  }
+  if (nextValue) {
+    const invoker = invokers[name] = createInvoker(nextValue);
+    return el.addEventListener(eventName, invoker);
+  }
+  if (exisitingInvoker) {
+    el.removeEventListener(eventName, exisitingInvoker);
+    invokers[name] = void 0;
+  }
+}
+function createInvoker(value) {
+  const invoker = (e) => invoker.value(e);
+  invoker.value = value;
+  return invoker;
+}
+
+// packages/runtime-dom/src/modules/patchStyle.ts
+function patchStyle(el, perValue, nextValue) {
+  const style = el.style;
+  if (nextValue) {
+    for (const key in nextValue) {
+      style[key] = nextValue[key];
+    }
+  }
+  if (perValue) {
+    for (const key in perValue) {
+      if (!nextValue || nextValue[key] == null) {
+        style[key] = "";
+      }
+    }
+  }
+}
+
+// packages/runtime-dom/src/patchProp.ts
+function patchProp(el, key, preValue, nextValue) {
+  if (key === "class") {
+    return patchClass(el, nextValue);
+  } else if (key === "style") {
+    return patchStyle(el, preValue, nextValue);
+  } else if (/^on[^a-z]/.test(key)) {
+    return patchEvent(el, key, nextValue);
+  } else {
+    return patchAttr(el, key, nextValue);
+  }
+}
+
 // packages/shared/src/index.ts
 function isObject(value) {
   return typeof value === "object" && value !== null;
@@ -348,6 +448,9 @@ function traverse(source, depth, currentDepth = 0, seen = /* @__PURE__ */ new Se
   }
   return source;
 }
+
+// packages/runtime-dom/src/index.ts
+var renderObtions = Object.assign({ patchProp }, nodeOps);
 export {
   ReactiveEffect,
   activeEffect,
@@ -358,6 +461,7 @@ export {
   proxyRefs,
   reactive,
   ref,
+  renderObtions,
   toReactive,
   toRef,
   toRefs,
@@ -368,4 +472,4 @@ export {
   watch,
   watchEffect
 };
-//# sourceMappingURL=reactivity.js.map
+//# sourceMappingURL=runtime-dom.js.map

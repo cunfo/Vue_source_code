@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>reactive / effect implement</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script type="module">
+    import { reactive, effect } from "./reactivity.js";
+    // reactive 让数据变成响应式
+    const obj = {
+      name: "cunfox",
+      age: 20,
+      bool: false,
+      data: {
+        tel: "13800138000",
+        email: "1234567890@qq.com",
+      },
+    };
+    const state = reactive(obj);
+
+    // effect 副作用 数据变化后可以让effect重新执行，组件渲染、watch、computed等都是基于effect实现
+    const runner = effect(
+      () => {
+        console.log("runner");
+        app.innerHTML = `${state.bool ? "姓名：" + state.name : "年龄：" + state.age} `;
+        app.innerHTML += `${state.bool ? "电话：" + state.data.tel : "邮箱：" + state.data.email} `;
+        // app.innerHTML = `${ "电话：" + state.data.tel} `;
+      },
+      // {
+      //   scheduler: () => {
+      //     console.log("自定义调度器，走自定义逻辑，可以不重新渲染");
+      //     // 执行_effect()重新渲染
+      //     runner();
+      //   },
+      // },
+    );
+
+    effect(()=>{
+      console.log("runner2");
+      app.innerHTML += `${"年龄：" + state.data.tel} `;
+
+    })
+
+    //  effect(()=>{
+    //   console.log("1");
+    //     console.log(state.name);
+    //     effect(()=>{
+    //       console.log("2");
+    //         console.log(state.name);
+    //     })
+    //     console.log("3");
+    //     console.log(state.name);
+    //  })
+
+    // app.innerHTML += `${"电话：" + state.data.tel} `;
+
+    setTimeout(() => {
+      // state.name = "张三";
+      state.bool = true;
+      // state.data.email = "example@example.com";
+      state.data.tel = "1234567890";
+      // setTimeout(() => {
+      //   console.log("修改属性后不应该触发effect");
+      //   state.age = "23";
+      // });
+    }, 1000);
+  </script>
+</html>
