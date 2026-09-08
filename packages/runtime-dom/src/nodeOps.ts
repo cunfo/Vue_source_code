@@ -3,7 +3,7 @@
 export const nodeOps = {
     // 创建dom元素
     createElement:type => document.createElement(type),
-        // 插入当前dom元素,anchor不存在.insetBefore() == .appendChild()
+        // 插入当前dom元素,anchor不存在.insertBefore() == .appendChild()
     insert:(el,parent, anchor) => parent.insertBefore(el,anchor || null),
     // 移除当前dom元素
     remove(el){

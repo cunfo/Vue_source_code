@@ -4,12 +4,8 @@
 vue-lesson
 ├── packages
 │   ├── reactivity
-│   │   ├── src
-│   │   │   └── index.ts
 │   │   └── package.json
 │   └── shared
-│       ├── src
-│       │   └── index.ts
 │       └── package.json
 ├── scripts
 │   └── dev.js
@@ -28,5 +24,10 @@ pnpm install minimist
 <!-- 安装ts编译依赖 -->
 pnpm install typescript
 <!-- 将本地target2依赖模块添加到target1依赖模块package.json的dependencies中 -->
-pnpm --filter @vue/target1 add @vue/target2 --workspace
+pnpm --filter @vue3/target1 add @vue3/target2 --workspace
+```
+
+### 删除node_modules
+```
+rm -rf node_modules pnpm-lock.yaml
 ```

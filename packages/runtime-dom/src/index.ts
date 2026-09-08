@@ -6,9 +6,19 @@
 
 import { nodeOps } from './nodeOps';
 import patchProp from './patchProp'
+import {createRenderer} from '@vue/runtime-core'
 
 const renderObtions= Object.assign({patchProp}, nodeOps )
 
-export {renderObtions}
-export * from '@vue/reactivity'
+const render = (vnode,Container) =>{
+   return createRenderer(renderObtions).render(vnode,Container)
+}
+
+export {renderObtions,render}
+
+// runtime-dom -> runtime-core -> reactivity
+// export * from '@vue/reactivity'
+export * from '@vue/runtime-core'
+
+
 // function createRenderer(){}
