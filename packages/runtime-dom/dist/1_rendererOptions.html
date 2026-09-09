@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script type="module">
+    /*
+     * 1. createRenderer(options) 可以自己创建渲染器(自己提供渲染方式)
+     * 2. render(fn) 用内置的渲染器进行渲染(渲染dom元素)
+     * 3. h(type, propsOrChildren, children) 可以创建一个虚拟dom
+     */
+
+    // ##########################  vue3 源码  #################################
+    import {
+      createRenderer,
+      render,
+      h,
+    } from "/node_modules//@vue/runtime-dom/dist/runtime-dom.esm-browser.js";
+    // // varablies
+    // // 创建一个虚拟dom元素
+    // const ele = h('h1', 'Hello Vue 3!')
+    // // 调用内置渲染器，渲染到指定id为app的dom中
+    // // render(ele,app)
+    // // console.log(ele);
+
+    // // 调用自定义渲染器，设置方式并通过.render()渲染到指定id为app的dom中
+    // const renderer = createRenderer({
+    //     createElement(type){
+    //         // 需要创建一个元素，如是 canvas 需调用对应的api来渲染
+    //         return document.createElement(type)
+    //     },
+    //     setElementText(el,text){
+    //         // 需要设置元素的文本内容
+    //         el.textContent = text
+    //     },
+    //     insert(el,parent){
+    //         // 需要将child插入到parent中
+    //         parent.appendChild(el)
+    //     }
+    // })
+    // renderer.render(ele,app)
+
+    // ##########################  vue3 源码  #################################
+
+    // ##########################  源码 实现  #################################
+    // import {createRenderer, render, h} from './runtime-dom.js'
+    import { renderObtions } from "./runtime-dom.js";
+
+    const ele = h(
+      "h1",
+      {
+        class: "title",
+        onClick: () => alert("Hello Vue 3!"),
+        style: { color: "red" },
+        a: 12,
+      },
+      "Hello Vue 3!",
+    );
+
+    const renderer = createRenderer(renderObtions);
+
+    renderer.render(ele, app);
+    // ##########################  源码 实现  #################################
+  </script>
+</html>
